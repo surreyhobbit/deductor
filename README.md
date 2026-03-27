@@ -13,8 +13,8 @@ Edit `app/db.py` and update the `CHILDREN` list near the top:
 
 ```python
 CHILDREN = [
-    {"id": 1, "name": "Mia",  "allowance_chf": 20},
-    {"id": 2, "name": "Noah", "allowance_chf": 15},
+    {"id": 1, "name": "Chrissy",  "allowance_chf": 160},
+    {"id": 2, "name": "Nick", "allowance_chf": 115},
 ]
 ```
 
