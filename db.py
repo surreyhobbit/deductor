@@ -7,8 +7,8 @@ DB_PATH = os.environ.get("DB_PATH", "/data/pocket.db")
 # ── Configuration ──────────────────────────────────────────────────────────────
 # Edit names and monthly allowances (CHF) here.
 CHILDREN = [
-    {"id": 1, "name": "Mia",   "allowance_chf": 20},
-    {"id": 2, "name": "Noah",  "allowance_chf": 15},
+    {"id": 1, "name": "Chrissy",   "allowance_chf": 160},
+    {"id": 2, "name": "Nick",  "allowance_chf": 115},
 ]
 
 
