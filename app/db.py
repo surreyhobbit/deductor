@@ -60,16 +60,16 @@ def init_db():
 
 
 def ensure_month(child_id: int, year: int, month: int):
-    """Create monthly_summary row for this child/month if it doesn't exist."""
     with _connect() as con:
         row = con.execute(
             "SELECT allowance_chf FROM children WHERE id = ?", (child_id,)
         ).fetchone()
         if row:
             con.execute("""
-                INSERT OR IGNORE INTO monthly_summary
-                    (child_id, year, month, base_amount)
+                INSERT INTO monthly_summary (child_id, year, month, base_amount)
                 VALUES (?, ?, ?, ?)
+                ON CONFLICT(child_id, year, month) DO UPDATE
+                    SET base_amount = excluded.base_amount
             """, (child_id, year, month, row["allowance_chf"]))
 
 

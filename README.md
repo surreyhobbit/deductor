@@ -73,6 +73,83 @@ docker cp ./pocket-backup.db pocket-money:/data/pocket.db
 
 ---
 
+## Manual database access (fixing data errors)
+
+Sometimes you may need to correct a record directly — for example if you changed
+an allowance in `db.py` but the running container still has the old value stored.
+
+### Step 1 — Find the container name
+
+```bash
+docker ps
+```
+
+Look at the **NAMES** column in the output. It will be something like `pocket-money`
+or `pocket-money-pocket-money-1`. Use that name in the commands below.
+
+### Step 2 — Open a shell in the container
+
+```bash
+docker exec -it <container-name> bash
+```
+
+You are now inside the container. The database file is at `/data/pocket.db`.
+
+### Step 3 — Open the SQLite CLI
+
+```bash
+sqlite3 /data/pocket.db
+```
+
+You will see a `sqlite>` prompt.
+
+### Useful commands
+
+```sql
+-- See all tables
+.tables
+
+-- Check current month's base amounts and deductions
+SELECT c.name, ms.year, ms.month, ms.base_amount,
+       (SELECT COALESCE(SUM(amount_chf),0) FROM deductions d
+        WHERE d.child_id = ms.child_id AND d.year = ms.year AND d.month = ms.month) AS deducted
+FROM monthly_summary ms
+JOIN children c ON c.id = ms.child_id
+ORDER BY ms.year DESC, ms.month DESC;
+
+-- Fix a wrong base_amount for the current month (replace 25 and child_id as needed)
+UPDATE monthly_summary
+SET base_amount = 25
+WHERE child_id = 1
+  AND year  = CAST(strftime('%Y', 'now') AS INTEGER)
+  AND month = CAST(strftime('%m', 'now') AS INTEGER);
+
+-- Remove an accidental deduction (replace the id from the deductions table)
+DELETE FROM deductions WHERE id = 42;
+
+-- See all deductions for the current month
+SELECT * FROM deductions
+WHERE year  = CAST(strftime('%Y', 'now') AS INTEGER)
+  AND month = CAST(strftime('%m', 'now') AS INTEGER)
+ORDER BY deducted_at DESC;
+```
+
+### Step 4 — Exit
+
+```sql
+.quit
+```
+
+Then exit the shell:
+
+```bash
+exit
+```
+
+Changes are written immediately — reload the browser to confirm.
+
+---
+
 ## Monthly reset
 
 There is **no cron job or manual reset** needed.
