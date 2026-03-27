@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pocket Money — {{ month_label }}</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #faf7f2;
+      --surface:  #ffffff;
+      --border:   #e8e0d4;
+      --text:     #1a1612;
+      --muted:    #7a7065;
+      --accent1:  #c45c2e;   /* warm terracotta – child 1 */
+      --accent2:  #2e7dc4;   /* slate blue – child 2 */
+      --danger:   #c45c2e;
+      --green:    #2a7a4b;
+      --radius:   14px;
+      --shadow:   0 2px 12px rgba(0,0,0,.07);
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100svh;
+      padding: 1.25rem 1rem 3rem;
+    }
+
+    /* ── Header ──────────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    header h1 {
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      font-weight: normal;
+      letter-spacing: .02em;
+    }
+    header p {
+      color: var(--muted);
+      font-size: .9rem;
+      margin-top: .3rem;
+    }
+
+    /* ── Grid ────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+      gap: 1.25rem;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    /* ── Card ────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: .9rem 1.2rem .75rem;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: .6rem;
+    }
+    .card-header h2 {
+      font-size: 1.25rem;
+      font-weight: normal;
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-bottom: 2px;
+    }
+    .child-1 .dot { background: var(--accent1); }
+    .child-2 .dot { background: var(--accent2); }
+
+    /* ── Stats row ───────────────────────────────────── */
+    .stats {
+      display: flex;
+      gap: 0;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .stat {
+      flex: 1;
+      padding: .85rem .5rem .7rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-label {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      display: block;
+      margin-bottom: .3rem;
+    }
+    .stat-value {
+      font-size: 1.35rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-value.remaining { color: var(--green); }
+    .stat-value.remaining.low { color: var(--danger); }
+
+    /* ── Deduct button ───────────────────────────────── */
+    .deduct-wrap {
+      padding: 1rem 1.2rem;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .btn-deduct {
+      width: 100%;
+      padding: .85rem;
+      font-family: inherit;
+      font-size: 1rem;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: bold;
+      letter-spacing: .03em;
+      transition: filter .15s, transform .1s;
+      color: #fff;
+    }
+    .btn-deduct:active { transform: scale(.97); filter: brightness(.9); }
+    .child-1 .btn-deduct { background: var(--accent1); }
+    .child-2 .btn-deduct { background: var(--accent2); }
+
+    /* ── Log ─────────────────────────────────────────── */
+    .log-section { padding: .75rem 1.2rem .9rem; }
+    .log-section h3 {
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: .55rem;
+      font-weight: normal;
+    }
+    .log-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .log-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: .82rem;
+      color: var(--muted);
+      padding: .2rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .log-item:last-child { border-bottom: none; }
+    .log-amount { color: var(--danger); font-weight: bold; }
+    .log-empty { font-size: .82rem; color: var(--muted); font-style: italic; }
+
+    /* ── Footer nav ──────────────────────────────────── */
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    footer a {
+      color: var(--muted);
+      font-size: .85rem;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1px;
+    }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🪙 Pocket Money</h1>
+  <p>{{ month_label }}</p>
+</header>
+
+<div class="grid">
+  {% for s in summaries %}
+  {% set cls = "child-" ~ loop.index %}
+  <div class="card {{ cls }}">
+
+    <div class="card-header">
+      <span class="dot"></span>
+      <h2>{{ s.name }}</h2>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-label">Allowance</span>
+        <span class="stat-value">CHF {{ s.base }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Deducted</span>
+        <span class="stat-value">CHF {{ s.deducted }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Remaining</span>
+        <span class="stat-value remaining {% if s.remaining <= s.base // 4 %}low{% endif %}">
+          CHF {{ s.remaining }}
+        </span>
+      </div>
+    </div>
+
+    <div class="deduct-wrap">
+      <form method="post" action="/deduct/{{ s.id }}">
+        <button class="btn-deduct" type="submit">− 1 CHF</button>
+      </form>
+    </div>
+
+    <div class="log-section">
+      <h3>This month's deductions</h3>
+      {% if s.log %}
+      <ul class="log-list">
+        {% for entry in s.log %}
+        <li class="log-item">
+          <span>{{ entry.deducted_at | format_dt }}</span>
+          <span class="log-amount">− CHF {{ entry.amount_chf }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="log-empty">No deductions yet.</p>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+<footer>
+  <a href="/history">View full history →</a>
+</footer>
+
+</body>
+</html>

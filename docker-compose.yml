@@ -1,0 +1,18 @@
+services:
+  pocket-money:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pocket-money
+    restart: unless-stopped
+    ports:
+      - "5000:5000"          # access at http://<pi-ip>:5000
+    environment:
+      DB_PATH: /data/pocket.db
+      PORT: "5000"
+    volumes:
+      - pocket_data:/data    # persistent SQLite database
+
+volumes:
+  pocket_data:
+    driver: local

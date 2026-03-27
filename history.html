@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pocket Money — History</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf7f2; --surface: #fff; --border: #e8e0d4;
+      --text: #1a1612; --muted: #7a7065; --green: #2a7a4b;
+      --danger: #c45c2e; --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,.07);
+    }
+    body { font-family: 'Georgia', serif; background: var(--bg); color: var(--text);
+           padding: 1.25rem 1rem 3rem; }
+    header { text-align: center; margin-bottom: 1.75rem; }
+    header h1 { font-size: clamp(1.4rem,5vw,1.9rem); font-weight: normal; }
+    .back { display: inline-block; margin-top: .5rem; font-size: .85rem;
+            color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--border); }
+
+    .table-wrap {
+      max-width: 680px; margin: 0 auto;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    thead tr { background: #f3ede4; }
+    th, td { padding: .7rem .9rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
+         font-weight: normal; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #fdf9f5; }
+    .amt { font-variant-numeric: tabular-nums; }
+    .remaining-ok  { color: var(--green); }
+    .remaining-low { color: var(--danger); }
+    .empty { padding: 2rem; text-align: center; color: var(--muted); font-style: italic; }
+
+    /* month badge */
+    .month-badge {
+      display: inline-block; font-size: .78rem; padding: .15rem .5rem;
+      background: #f3ede4; border-radius: 6px; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🪙 History</h1>
+  <a class="back" href="/">← Back to current month</a>
+</header>
+
+<div class="table-wrap">
+  {% if rows %}
+  <table>
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Child</th>
+        <th>Base</th>
+        <th>Deducted</th>
+        <th>Remaining</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      {% set pct = r.remaining / r.base_amount if r.base_amount else 1 %}
+      <tr>
+        <td><span class="month-badge">{{ "%04d-%02d"|format(r.year, r.month) }}</span></td>
+        <td>{{ r.name }}</td>
+        <td class="amt">CHF {{ r.base_amount }}</td>
+        <td class="amt">CHF {{ r.total_deducted }}</td>
+        <td class="amt {% if pct <= 0.25 %}remaining-low{% else %}remaining-ok{% endif %}">
+          CHF {{ r.remaining }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No history yet.</p>
+  {% endif %}
+</div>
+</body>
+</html>
